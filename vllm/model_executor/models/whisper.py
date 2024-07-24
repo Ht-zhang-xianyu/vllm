@@ -37,11 +37,27 @@ class MultiHeadAttention(nn.Module):
                  quant_config: Optional[QuantizationConfig] = None,
                  cache_config: Optional[CacheConfig] = None,):
         super().__init__()
-        self.n_head = n_head
-        self.q_proj = Linear(n_state, n_state)
-        self.k_projj = Linear(n_state, n_state, bias=False)
-        self.v_proj = Linear(n_state, n_state)
-        self.out = Linear(n_state, n_state)
+        self.n_head = num_heads
+        self.k_projj = RowParallelLinear(input_size=hidden_size,
+                                         output_size=hidden_size,
+                                         bias=False,
+                                         quant_config=quant_config
+                                         )
+        self.v_proj = RowParallelLinear(input_size=hidden_size,
+                                        output_size=hidden_size,
+                                        bias=bias,
+                                        quant_config=quant_config
+                                        )
+        self.q_proj = RowParallelLinear(input_size=hidden_size,
+                                        output_size=hidden_size,
+                                        bias=bias,
+                                        quant_config=quant_config
+                                        )
+        self.out_proj = RowParallelLinear(input_size=hidden_size,
+                                          output_size=hidden_size,
+                                          bias=bias,
+                                          quant_config=quant_config
+                                          )
 
 
 class AudioEncoder(nn.Module):
